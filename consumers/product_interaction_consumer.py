@@ -2,6 +2,7 @@ import threading
 from kafka import KafkaConsumer
 from neo4j import GraphDatabase
 import json
+import random
 
 class ProductInteractionConsumer:
     def __init__(self, bootstrap_servers, neo4j_uri, neo4j_user, neo4j_password):
@@ -19,14 +20,25 @@ class ProductInteractionConsumer:
             session.execute_write(self._create_interaction, message)
             
     def _create_interaction(self, tx, interaction):
+        categories = ["Electronics", "Clothing", "Books"]
+        category = random.choice(categories)
+
+        if interaction['interaction_type'] == 'review':
+            relationship_type = 'REVIEWED'
+            value_property = 'text'
+        elif interaction['interaction_type'] == 'rating':
+            relationship_type = 'RATED'
+            value_property = 'rating_value'
+
         query = (
             "MERGE (u:User {userID: $user_id}) "
             "MERGE (p:Product {productID: $product_id}) "
-            "CREATE (u)-[:INTERACTED {type: $interaction_type, value: $value, timestamp: $timestamp}]->(p)"
+            "ON CREATE SET p.category = $category "
+            "ON MATCH SET p.category = coalesce(p.category, $category) "
+            f"CREATE (u)-[:{relationship_type} {{ {value_property}: $value, timestamp: $timestamp }}]->(p)"
         )
         tx.run(query, user_id=interaction['user_id'], product_id=interaction['product_id'],
-               interaction_type=interaction['interaction_type'], value=interaction['value'],
-               timestamp=interaction['timestamp'])
+               category=category, value=interaction['value'], timestamp=interaction['timestamp'])
         
     def run(self):
         while self.is_running:
