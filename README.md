@@ -64,19 +64,19 @@ El proyecto está compuesto por los siguientes componentes:
 El archivo `graph_operations.py` incluye las consultas que permiten analizar los datos almacenados en Neo4J:
 1. **Productos más comprados por categoría en los últimos 30 días** (`most_purchased_products_by_category`).
 
-![consulta1](consultas/Consulta#1.png)
+![consulta1](consultas/Consulta1.png)
    
 2. **Usuarios más influyentes por cantidad de seguidores** (`most_influential_users`).
 
-![consulta2](consultas/Consulta#2.png)
+![consulta2](consultas/Consulta2.png)
    
 3. **Productos mejor calificados y usuarios que los calificaron** (`best_rated_products`).
 
-![consulta3](consultas/Consulta#3.png)
+![consulta3](consultas/Consulta3.png)
    
 4. **Usuarios que compran productos similares (clusters)** (`user_product_clusters`).
 
-![consulta4](consultas/Consulta#4.png)
+![consulta4](consultas/Consulta4.png)
 
 ---
 
