@@ -112,26 +112,3 @@ Punto de entrada para la ejecución de la aplicación. Sus funciones son:
 3. Descargar las librerías necesarias para la conexión de python con neo4j y kafka:
    pip install kafka
    pip install neo4j
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Instrucciones para ejecutar con Docker Compose
-1. Clonar el repositorio del proyecto.
-2. Construir y levantar los servicios con Docker Compose:
-   ```bash
-   docker-compose up --build
