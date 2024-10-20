@@ -32,36 +32,23 @@ class GraphOperations:
     def best_rated_products(self):
         with self.driver.session() as session:
             result = session.run("""
-                MATCH (u:User)-[r:INTERACTED {type: 'rating'}]->(p:Product)
-                WITH p, AVG(r.value) AS avg_rating, COUNT(r) AS num_ratings
-                WHERE num_ratings > 10
+                MATCH (u:User)-[r:RATED]->(p:Product)
+                WITH p, AVG(r.rating_value) AS avg_rating, COLLECT({user: u.userID, rating: r.rating_value}) AS ratings_by_users
                 ORDER BY avg_rating DESC
                 LIMIT 10
-                RETURN p.productID, avg_rating, num_ratings
+                RETURN p.productID AS product, avg_rating, ratings_by_users
             """)
             return result.data()
 
     def user_product_clusters(self):
         with self.driver.session() as session:
             result = session.run("""
-                CALL gds.graph.project(
-                  'purchaseGraph',
-                  ['User', 'Product'],
-                  {
-                    PURCHASED: {
-                      type: 'PURCHASED',
-                      orientation: 'UNDIRECTED'
-                    }
-                  }
-                )
-                YIELD graphName;
-                
-                CALL gds.louvain.stream('purchaseGraph')
-                YIELD nodeId, communityId
-                WITH gds.util.asNode(nodeId) AS node, communityId
-                WHERE node:User
-                RETURN communityId, COLLECT(node.userID) AS users
-                ORDER BY SIZE(users) DESC
+                MATCH (u1:User)-[:PURCHASED]->(t1:Transaction)-[:OF]->(p:Product)<-[:OF]-(t2:Transaction)<-[:PURCHASED]-(u2:User)
+                WHERE u1 <> u2
+                WITH u1, u2, COUNT(p) AS sharedProducts
+                WHERE sharedProducts > 1
+                RETURN u1.userID AS user1, u2.userID AS user2, sharedProducts
+                ORDER BY sharedProducts DESC
                 LIMIT 10
             """)
             return result.data()
