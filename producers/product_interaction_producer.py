@@ -14,11 +14,13 @@ class ProductInteractionProducer:
         self.thread = None
         
     def produce_interaction(self):
+        interaction_type = random.choice(['review', 'rating'])
+        
         interaction = {
             "user_id": random.randint(1, 1000),
             "product_id": random.randint(1, 100),
-            "interaction_type": random.choice(['review', 'rating']),
-            "value": random.randint(1, 5) if random.choice(['review', 'rating']) == 'rating' else "Great product!",
+            "interaction_type": interaction_type,
+            "value": random.randint(1, 5) if interaction_type == 'rating' else "Great product!",
             "timestamp": int(time.time())
         }
         self.producer.send('product_interactions', interaction)
